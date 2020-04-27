@@ -13,6 +13,6 @@ pub fn sigmoid(arr: &Array2<f64>) -> Array2<f64> {
     arr.mapv(|x| 1.0 / (f64::exp(-x) + 1.0))
 }
 
-pub fn cross_entropy_err(y: &Array2<f64>, t: &Array2<f64>) -> Array2<f64> {
-    - (t * &(y+EPS).mapv_into(f64::ln))
+pub fn cross_entropy_err(y: &Array2<f64>, t: &Array2<f64>) -> Array1<f64> {
+    - (t * &(y+EPS).mapv_into(f64::ln)).sum_axis(Axis(0))
 }

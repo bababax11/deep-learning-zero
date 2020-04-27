@@ -31,7 +31,7 @@ impl AffineLayer {
 }
 
 struct SoftMaxWithLossLayer {
-    loss: Option<Array2<f64>>,
+    loss: Option<Array1<f64>>,
     y: Option<Array2<f64>>,
     t: Option<Array2<f64>>,
 }
@@ -40,7 +40,7 @@ impl SoftMaxWithLossLayer {
     fn new() -> Self {
         Self { loss: None, y: None, t: None}
     }
-    fn forward(&mut self, x: Array2<f64>, t: Array2<f64>) -> Array2<f64> {
+    fn forward(&mut self, x: Array2<f64>, t: Array2<f64>) -> Array1<f64> {
         self.t = Some(t);
         self.y = Some(softmax(&x));
         self.loss = Some(cross_entropy_err(
