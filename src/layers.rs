@@ -1,11 +1,12 @@
 use ndarray::prelude::*;
 use crate::functions::{softmax, cross_entropy_err};
-
+use std::ops::{Add, Mul};
 trait Layer {
     fn forward(x: Array2<f64>) -> Array2<f64>;
     fn backward(x: Array2<f64>) -> Array2<f64>;
 }
 
+#[derive(Clone, Debug, PartialEq)]
 struct AffineLayer {
     W: Array2<f64>,
     b: Array1<f64>,
@@ -30,6 +31,7 @@ impl AffineLayer {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
 struct SoftMaxWithLossLayer {
     loss: Option<Array1<f64>>,
     y: Option<Array2<f64>>,
@@ -51,5 +53,35 @@ impl SoftMaxWithLossLayer {
     fn backward(&self) -> Array2<f64> {
         let batch_size = self.t.as_ref().unwrap().shape()[0] as f64;
         (self.y.as_ref().unwrap() - self.t.as_ref().unwrap()) / batch_size
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+struct AddLayer<T: Add+Mul+Clone> {
+    x: T,
+    y: T,
+}
+impl<T: Add+Mul+Clone> AddLayer<T> {
+    fn forward(x: T, y: T) -> <T as Add>::Output {
+        x + y
+    }
+    fn backward(dout: T) -> (T, T) {
+        (dout.clone(), dout.clone())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+struct MulLayer<T: Add+Mul+Clone> {
+    x: Option<T>,
+    y: Option<T>,
+}
+impl MulLayer<f64> {
+    fn forward(&mut self, x: f64, y: f64) -> f64 {
+        self.x = Some(x);
+        self.y = Some(y);
+        x * y
+    }
+    fn backward(&self, dout: f64) -> (f64, f64) {
+        (dout * self.y.unwrap(), dout * self.x.unwrap())
     }
 }
