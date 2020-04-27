@@ -8,24 +8,24 @@ trait Layer {
 
 #[derive(Clone, Debug, PartialEq)]
 struct AffineLayer {
-    W: Array2<f64>,
+    w: Array2<f64>,
     b: Array1<f64>,
     x: Option<Array2<f64>>,
-    dW: Option<Array2<f64>>,
+    dw: Option<Array2<f64>>,
     db: Option<Array1<f64>>,
 }
 
 impl AffineLayer {
-    fn new(W: Array2<f64>, b: Array1<f64>) -> Self {
-        Self { W: W, b: b , x: None, dW: None, db: None }
+    fn new(w: Array2<f64>, b: Array1<f64>) -> Self {
+        Self { w: w, b: b , x: None, dw: None, db: None }
     }
     fn forward(&mut self, x: Array2<f64>) -> Array2<f64> {
         self.x = Some(x);
-        self.x.as_ref().unwrap().dot(&self.W) + &self.b
+        self.x.as_ref().unwrap().dot(&self.w) + &self.b
     }
     fn backward(&mut self, dout: Array2<f64>) -> Array2<f64> {
-        let dx = dout.dot(&self.W.t());
-        self.dW = Some(self.x.as_ref().unwrap().t().dot(&dout));
+        let dx = dout.dot(&self.w.t());
+        self.dw = Some(self.x.as_ref().unwrap().t().dot(&dout));
         self.db = Some(dout.sum_axis(Axis(0)));
         dx
     }
